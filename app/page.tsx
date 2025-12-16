@@ -14,6 +14,7 @@ import { Analytics } from "@vercel/analytics/next"
 export default function Home() {
   return (
     <main className="bg-black text-white overflow-x-hidden">
+      <Analytics/>
       <FireworksCanvas />
       <Navigation />
       <HeroSection />
