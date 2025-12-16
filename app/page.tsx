@@ -9,6 +9,7 @@ import { VisionLetterSection } from "@/components/vision-letter-section"
 import { JoinSection } from "@/components/join-section"
 import { Footer } from "@/components/footer"
 import { FireworksCanvas } from "@/components/fireworks-canvas"
+import { Analytics } from "@vercel/analytics/next"
 
 export default function Home() {
   return (
