@@ -1,3 +1,5 @@
+import supabaseClient from "@/lib/supabase_client";
+
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
@@ -5,10 +7,11 @@ export async function POST(req: Request) {
     const body = await req.json();
     const name = body?.name?.trim();
     const goals = body?.goals?.trim();
+    const email = body?.email?.trim(); // Added email
 
-    if (!name || !goals) {
+    if (!name || !goals || !email) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: name or goals" }),
+        JSON.stringify({ error: "Missing required fields: name, email, or goals" }),
         { status: 400 }
       );
     }
@@ -54,7 +57,7 @@ Important:
 This letter should feel like something someone would save, reread, and feel seen by.
 `;
 
-    // Call Gemini API (Original URL preserved)
+    // Call Gemini API
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemma-3-27b-it:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
@@ -85,16 +88,31 @@ This letter should feel like something someone would save, reread, and feel seen
 
     const data = await response.json();
 
+    // Combine all parts
     const letter =
       data?.candidates?.[0]?.content?.parts?.map((p: any) => p.text).join(" ") ||
       "Sorry, could not generate the letter.";
 
-    // Returning only the letter content
-    return new Response(JSON.stringify({ letter }), { 
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    });
+    // --- Save letter to Supabase ---
+    const { error: supabaseError } = await supabaseClient.from("future_letters").insert([
+      {
+        name,
+        email,
+        letter,
+        scheduled_for: "2026-12-31T09:00:00Z",
+        sent: false,
+      },
+    ]);
 
+    if (supabaseError) {
+      console.error("Supabase insert error:", supabaseError.message);
+      return new Response(
+        JSON.stringify({ error: "Failed to save vision letter" }),
+        { status: 500 }
+      );
+    }
+
+    return new Response(JSON.stringify({ letter, message: "Letter generated and saved!" }), { status: 200 });
   } catch (error) {
     console.error("Vision letter generation error:", error);
     return new Response(
