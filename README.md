@@ -4,7 +4,7 @@
 # Happy New Year 2026 🎉
 
 <p align="center">
-  <img src="./public/preview.png" alt="App Preview" width="600"/>
+  <img src="./public/preview.png" alt="App Preview" width="1024"/>
 </p>
 
 <p align="center"><em>Interactive AI Vision Letter Generator for 2026</em></p>
