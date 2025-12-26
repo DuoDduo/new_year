@@ -1,59 +1,86 @@
 import { StatCard } from "./stat-card"
+import { Sparkles, ArrowDown } from "lucide-react"
 
 export function HeroSection() {
   return (
-    <section className="relative z-10 min-h-screen flex items-center justify-center px-6">
-      <div className="text-center max-w-5xl mx-auto">
-        <div className="glass-effect rounded-3xl p-8 md:p-16 mb-8 relative overflow-hidden">
-          {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full blur-3xl opacity-20" />
-          <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-purple-400 to-blue-500 rounded-full blur-3xl opacity-20" />
+    <section className="relative z-10 min-h-screen flex items-center justify-center px-6 py-20">
+      <div className="text-center max-w-6xl mx-auto">
+        
+        {/* Main Hero Card */}
+        <div className="group relative glass-effect rounded-[2.5rem] p-8 md:p-20 mb-12 overflow-hidden border border-white/10 shadow-2xl transition-all duration-500 hover:shadow-orange-500/10">
+          
+          {/* Animated Background Blobs */}
+          <div className="absolute -top-24 -right-24 w-96 h-96 bg-orange-600/20 rounded-full blur-[100px] animate-pulse" />
+          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-purple-600/20 rounded-full blur-[100px] animate-pulse [animation-delay:2s]" />
 
           <div className="relative z-10">
-            <div className="float mb-8">
-              <div className="inline-block mb-4">
-                <span className="px-6 py-2 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full text-sm font-semibold">
-                  🎊 Welcome to 2026 🎊
-                </span>
-              </div>
-              <h1 className="text-6xl md:text-8xl lg:text-9xl font-black mb-6 glow leading-tight bg-gradient-to-r from-white via-orange-200 to-pink-200 bg-clip-text text-transparent">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md">
+              <Sparkles className="w-4 h-4 text-orange-400" />
+              <span className="text-xs font-bold tracking-[0.3em] uppercase text-orange-200">
+                The Future is Here
+              </span>
+            </div>
+
+            {/* Headline */}
+            <div className="mb-8">
+              <h1 className="text-5xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-[0.9] text-white italic">
                 HAPPY NEW
-                <br />
+              </h1>
+              <h1 className="text-6xl md:text-9xl lg:text-[10rem] font-black tracking-tighter leading-[0.9] glow bg-gradient-to-r from-orange-400 via-pink-500 to-purple-500 bg-clip-text text-transparent">
                 YEAR 2026
               </h1>
             </div>
-            <p className="text-lg md:text-2xl text-gray-200 mb-12 font-light max-w-2xl mx-auto leading-relaxed">
-              Step into a new chapter filled with endless possibilities, dreams, and celebrations
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-              <a
-                href="#surprise"
-                className="pulse-glow bg-gradient-to-r from-orange-500 to-pink-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:scale-105 transition-transform duration-300 shadow-lg"
-              >
-                ✨ Get Your Surprise
-              </a>
-              <a
-                href="#countdown"
-                className="glass-effect text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:bg-opacity-20 transition-all duration-300 border-2 border-white border-opacity-30"
-              >
-                View Countdown
-              </a>
-            </div>
 
-            {/* Quick stats */}
-            <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mt-12 pt-8 border-t border-white border-opacity-20">
-              <StatCard value="365" label="Days to Shine" color="text-orange-400" />
-              <StatCard value="∞" label="Possibilities" color="text-pink-400" />
-              <StatCard value="1" label="Amazing You" color="text-purple-400" />
+            <p className="text-lg md:text-xl text-gray-300 mb-12 font-light max-w-xl mx-auto leading-relaxed">
+              A blank canvas awaits. Step into a year designed for 
+              <span className="text-white font-medium"> growth, resilience, and your boldest dreams.</span>
+            </p>
+
+      {/* Buttons */}
+      <div className="flex flex-col sm:flex-row gap-5 justify-center items-center mb-16">
+        <a
+          href="#surprise" // Pointing back to your surprise section
+          className="group relative px-8 py-4 bg-white text-black rounded-full font-bold text-lg overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+        >
+          {/* This creates a colorful background that appears on hover */}
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          
+          <span className="relative z-10 group-hover:text-white transition-colors duration-300">
+            ✨ Get Your Surprise
+          </span>
+        </a>
+        
+        <a
+          href="#countdown"
+          className="px-8 py-4 rounded-full font-semibold text-lg text-white border border-white/20 hover:bg-white/10 transition-all duration-300 backdrop-blur-md"
+        >
+          View Countdown
+        </a>
+      </div>
+
+            {/* Refined Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto pt-10 border-t border-white/10">
+              <div className="flex flex-col items-center">
+                <span className="text-3xl font-bold text-white">365</span>
+                <span className="text-[10px] uppercase tracking-widest text-orange-400 font-bold">New Opportunities</span>
+              </div>
+              <div className="flex flex-col items-center border-y md:border-y-0 md:border-x border-white/10 py-4 md:py-0">
+                <span className="text-3xl font-bold text-white">∞</span>
+                <span className="text-[10px] uppercase tracking-widest text-pink-400 font-bold">Limitless Potential</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-3xl font-bold text-white">01</span>
+                <span className="text-[10px] uppercase tracking-widest text-purple-400 font-bold">Epic Journey</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <div className="mt-12 animate-bounce">
-          <svg className="w-6 h-6 mx-auto text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
+        {/* Scroll Indicator */}
+        <div className="flex flex-col items-center gap-2 opacity-40 animate-bounce">
+          <span className="text-[10px] uppercase tracking-[0.4em] text-white">Scroll</span>
+          <ArrowDown className="w-5 h-5 text-white" />
         </div>
       </div>
     </section>

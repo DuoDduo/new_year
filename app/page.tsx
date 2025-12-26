@@ -10,6 +10,7 @@ import { JoinSection } from "@/components/join-section"
 import { Footer } from "@/components/footer"
 import { FireworksCanvas } from "@/components/fireworks-canvas"
 import { Analytics } from "@vercel/analytics/next"
+import { AboutSection } from "@/components/about-section"
 
 export default function Home() {
   return (
@@ -17,8 +18,9 @@ export default function Home() {
       <Analytics/>
       <FireworksCanvas />
       <Navigation />
-      <HeroSection />
+      <HeroSection />  
       <CountdownSection />
+      <AboutSection />
       <ResolutionsSection />
       <CelebrationSection />
       <AiSurpriseSection />
