@@ -109,7 +109,7 @@ export function VisionLetterSection() {
               </h2>
 
               <p className="text-gray-400 font-light text-lg md:text-xl max-w-2xl mb-12 leading-relaxed">
-                Close your eyes… it’s December 31, 2026. You’ve grown, you’ve endured, and you’ve thrived. Describe your intentions, and we will manifest them into a letter from your future self.
+                Close your eyes… it’s December 31, 2026. You’ve grown, you’ve endured, and you’ve thrived. Share your intentions, and we’ll shape them into a letter from your future self.
               </p>
 
               <div className="w-full max-w-md space-y-8">
@@ -144,7 +144,7 @@ export function VisionLetterSection() {
                     {isLoading ? (
                       <Wand2 className="w-5 h-5 animate-spin" />
                     ) : (
-                      <>🔮 Write My Future</>
+                      <>🔮 Write My Letter</>
                     )}
                   </span>
                 </button>

@@ -52,7 +52,7 @@ export function AboutSection() {
               </p>
               
               <p className="text-lg leading-relaxed font-light">
-                In the rush of every new year, we often lose sight of our own growth. I created <span className="text-white font-medium">2026</span> because I believe everyone deserves a moment of quiet reflection—a place to speak to their future self and see their potential through a different lens.
+                In the rush of every new year, we often lose sight of our own growth. I created <span className="text-white font-medium">2026</span> because I believe everyone deserves a moment of quiet reflection, a place to speak to their future self and see their potential through a different lens.
               </p>
 
               <p className="text-lg leading-relaxed font-light">

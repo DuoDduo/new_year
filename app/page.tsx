@@ -11,6 +11,8 @@ import { Footer } from "@/components/footer"
 import { FireworksCanvas } from "@/components/fireworks-canvas"
 import { Analytics } from "@vercel/analytics/next"
 import { AboutSection } from "@/components/about-section"
+import { TrustHeroSection } from "@/components/trust-hero-section"
+import { SecurityTicker } from "@/components/security-ticker"
 
 export default function Home() {
   return (
@@ -18,13 +20,15 @@ export default function Home() {
       <Analytics/>
       <FireworksCanvas />
       <Navigation />
-      <HeroSection />  
+      <HeroSection /> 
+       <SecurityTicker/>     
+      <TrustHeroSection /> 
       <CountdownSection />
       <AboutSection />
-      <ResolutionsSection />
-      <CelebrationSection />
       <AiSurpriseSection />
+      <ResolutionsSection />
       <AiCoachSection />
+      <CelebrationSection />
       <VisionLetterSection />
       <JoinSection />
       <Footer />
