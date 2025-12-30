@@ -29,10 +29,10 @@ export function VisionLetterSection() {
       const { letter } = await response.json()
       setVisionLetter(letter)
       setShowIntro(false)
-      toast.success("Your future has been written.")
+      toast.success("Your Letter has been written.")
     } catch (error) {
       console.error(error)
-      toast.error("The vision is blurry. Please try again.")
+      toast.error("I en. Please try again.")
     } finally {
       setIsLoading(false)
     }

@@ -1,18 +1,72 @@
-export const runtime = "nodejs";
+export const runtime = "nodejs"; // Specify Node.js runtime for the API route
 
+/**
+ * Attempt to generate the vision letter using Groq first.
+ * Groq is primary, free, and has a high daily usage limit.
+ */
+async function tryGroq(prompt: string) {
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${process.env.GROQ_API_KEY}`, // Use API key from environment variables
+    },
+    body: JSON.stringify({
+      model: "llama-3.1-8b-instant", // Model choice
+      messages: [
+        { role: "system", content: "You are a warm, reflective letter writer." }, // System instruction
+        { role: "user", content: prompt } // User's prompt
+      ],
+      temperature: 0.8, // Creativity level
+      max_tokens: 3000, // Max token length
+    }),
+  });
+
+  if (!response.ok) throw new Error(`Groq failed: ${response.status}`); // Throw error if API fails
+  const data = await response.json();
+  return data.choices[0].message.content; // Return generated letter content
+}
+
+/**
+ * Fallback function using Gemini.
+ * Called only if Groq fails.
+ */
+async function tryGemini(prompt: string) {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemma-3-27b-it:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }], // Format for Gemini API
+        generationConfig: { temperature: 0.8, maxOutputTokens: 3000 },
+      }),
+    }
+  );
+
+  if (!response.ok) throw new Error(`Gemini failed: ${response.status}`); // Throw error if API fails
+  const data = await response.json();
+  // Return the first text part from the response
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text;
+}
+
+/**
+ * Main POST handler for generating the vision letter
+ */
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const name = body?.name?.trim();
-    const goals = body?.goals?.trim();
+    // Extract user's name and goals from request body
+    const { name, goals } = await req.json();
 
+    // Validate required fields
     if (!name || !goals) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: name or goals" }),
-        { status: 400 }
+        JSON.stringify({ error: "Please share your name and intentions first 🤍" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
 
+    // Construct the prompt to send to AI
     const prompt = `
 You are ${name}, writing a private letter to your past self from December 31, 2026.
 
@@ -54,52 +108,40 @@ Important:
 This letter should feel like something someone would save, reread, and feel seen by.
 `;
 
-    // Call Gemini API (Original URL preserved)
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemma-3-27b-it:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            { role: "user", parts: [{ text: prompt }] },
-          ],
-          generationConfig: {
-            temperature: 0.8,
-            maxOutputTokens: 3000,
-          },
-        }),
-      }
-    );
+    let letter = "";
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Gemini API error:", errorText);
-      return new Response(
-        JSON.stringify({ error: "Failed to generate vision letter" }),
-        { status: 500 }
-      );
+    try {
+      // Attempt primary AI (Groq)
+      letter = await tryGroq(prompt);
+    } catch (groqError) {
+      console.warn("Groq failed, falling back to Gemini...", groqError);
+
+      try {
+        // Fallback to Gemini if Groq fails
+        letter = await tryGemini(prompt);
+      } catch (geminiError) {
+        console.error("Both Groq and Gemini failed:", geminiError);
+
+        // Friendly neutral error response returned to UI
+        return new Response(
+          JSON.stringify({ error: "Oops! Something went wrong. Please try again in a moment 🤍" }),
+          { status: 500, headers: { "Content-Type": "application/json" } }
+        );
+      }
     }
 
-    const data = await response.json();
-
-    const letter =
-      data?.candidates?.[0]?.content?.parts?.map((p: any) => p.text).join(" ") ||
-      "Sorry, could not generate the letter.";
-
-    // Returning only the letter content
-    return new Response(JSON.stringify({ letter }), { 
+    // Return the successfully generated letter
+    return new Response(JSON.stringify({ letter }), {
       status: 200,
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
     });
-
   } catch (error) {
-    console.error("Vision letter generation error:", error);
+    console.error("Vision letter API error:", error);
+
+    // Friendly neutral error response for unexpected failures
     return new Response(
-      JSON.stringify({ error: "Failed to generate vision letter" }),
-      { status: 500 }
+      JSON.stringify({ error: "Oops! Something went wrong. Please try again in a moment 🤍" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }

@@ -1,31 +1,43 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Send, Sparkles, Bot, User, Loader2, Target } from "lucide-react"
+import { Send, Bot, User, Loader2, Target, Trash2 } from "lucide-react"
+import toast, { Toaster } from "react-hot-toast"
 
 interface Message {
   role: "user" | "assistant"
   content: string
 }
 
+const LOCAL_STORAGE_KEY = "aiCoachMessages"
+
 export function AiCoachSection() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "assistant",
-      content:
-        "Hi 🤍 I’m your 2026 Goal Coach. This is a calm space to think clearly and move gently toward what matters. What's something you'd like to achieve this year?",
-    },
-  ])
+  const initialMessage: Message = {
+    role: "assistant",
+    content:
+      "Hi 🤍 I’m your 2026 Goal Coach. This is a calm space to think clearly and move gently toward what matters. What's something you'd like to achieve this year?",
+  }
+
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY)
+      return saved ? JSON.parse(saved) : [initialMessage]
+    }
+    return [initialMessage]
+  })
+
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
   const chatContainerRef = useRef<HTMLDivElement>(null)
 
+  // Save messages to localStorage and auto-scroll
   useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(messages))
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
     }
-  }, [messages, isTyping])
+  }, [messages])
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return
@@ -44,13 +56,17 @@ export function AiCoachSection() {
         body: JSON.stringify({ messages: updatedMessages }),
       })
 
-      if (!response.ok) throw new Error("Failed to get response")
       const data = await response.json()
-      const fullText: string = data.message
 
+      if (!response.ok) {
+        toast.error(data.error || "Failed to get a response from your coach")
+        throw new Error(data.error)
+      }
+
+      const fullText: string = data.message
       let currentText = ""
       setMessages((prev) => [...prev, { role: "assistant", content: "" }])
-      
+
       for (let i = 0; i < fullText.length; i++) {
         currentText += fullText[i]
         setMessages((prev) => {
@@ -62,24 +78,30 @@ export function AiCoachSection() {
       }
     } catch (error) {
       console.error("Error:", error)
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "I'm sorry, my signal faded for a moment. Could you repeat that?" },
-      ])
+      toast.error(
+        "Oops! Something went wrong while generating your coaching advice. Please try again."
+      )
     } finally {
       setIsLoading(false)
       setIsTyping(false)
     }
   }
 
+  const clearChat = () => {
+    setMessages([initialMessage])
+    localStorage.removeItem(LOCAL_STORAGE_KEY)
+    toast.success("Chat cleared!")
+  }
+
   return (
     <section id="coach" className="relative z-10 py-24 px-6 overflow-hidden">
-      {/* Background Glow - Swapped to Orange/Pink */}
+      <Toaster position="top-right" reverseOrder={false} />
+
       <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/10 blur-[120px] rounded-full -z-10" />
 
       <div className="max-w-4xl mx-auto">
-        {/* Header Section */}
-        <div className="text-center mb-12">
+        {/* Header */}
+        <div className="text-center mb-6 md:mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-md">
             <Target className="w-4 h-4 text-orange-400" />
             <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-orange-200">
@@ -92,39 +114,44 @@ export function AiCoachSection() {
               2026 Coach
             </span>
           </h2>
+
+          {/* Clear Chat Button */}
+          <button
+            onClick={clearChat}
+            className="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-full text-sm font-bold shadow-md transition"
+          >
+            <Trash2 size={16} />
+            Clear Chat
+          </button>
         </div>
 
-        {/* Chat Interface Container */}
+        {/* Chat Container */}
         <div className="relative rounded-[2.5rem] border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl overflow-hidden flex flex-col h-[600px] md:h-[700px]">
-          
-          {/* Subtle shimmer sweep */}
           <div className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full animate-[shimmer_10s_infinite] pointer-events-none" />
 
-          {/* Messages Area */}
-          <div 
-            ref={chatContainerRef}
-            className="flex-1 overflow-y-auto p-6 md:p-10 space-y-8 scrollbar-hide"
-          >
+          <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 md:p-10 space-y-8 scrollbar-hide">
             {messages.map((message, index) => (
               <div
                 key={index}
                 className={`flex items-start gap-4 ${message.role === "user" ? "flex-row-reverse" : ""}`}
               >
-                {/* Avatar Icon */}
-                <div className={`shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center border border-white/10 shadow-lg ${
-                  message.role === "user" 
-                    ? "bg-gradient-to-br from-orange-500 to-pink-500" 
-                    : "bg-white/5 text-pink-400"
-                }`}>
+                <div
+                  className={`shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center border border-white/10 shadow-lg ${
+                    message.role === "user"
+                      ? "bg-gradient-to-br from-orange-500 to-pink-500"
+                      : "bg-white/5 text-pink-400"
+                  }`}
+                >
                   {message.role === "user" ? <User size={18} className="text-white" /> : <Bot size={20} />}
                 </div>
 
-                {/* Message Bubble */}
-                <div className={`relative max-w-[85%] md:max-w-[70%] px-6 py-4 rounded-[1.5rem] text-base leading-relaxed ${
-                  message.role === "user"
-                    ? "bg-white text-black font-medium rounded-tr-none"
-                    : "bg-white/5 text-gray-200 border border-white/5 rounded-tl-none italic font-light"
-                }`}>
+                <div
+                  className={`relative max-w-[85%] md:max-w-[70%] px-6 py-4 rounded-[1.5rem] text-base leading-relaxed ${
+                    message.role === "user"
+                      ? "bg-white text-black font-medium rounded-tr-none"
+                      : "bg-white/5 text-gray-200 border border-white/5 rounded-tl-none italic font-light"
+                  }`}
+                >
                   <p className="whitespace-pre-wrap">{message.content}</p>
                 </div>
               </div>
